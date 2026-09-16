@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mohamed — Security &amp; Systems Developer | 3D</title>
+<meta name="description" content="Mohamed — self-taught developer building network security tools, games, and AI-assisted systems.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;600&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ================= TOKENS ================= */
+:root{
+  --bg:#0d0e0a;
+  --bg2:#12130f;
+  --panel:#161812;
+  --line:#262a1e;
+  --gold:#C7A567;
+  --gold-soft:#e3c893;
+  --green:#6FCB9F;
+  --ink:#e8e4d8;
+  --ink-dim:#9a978a;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Anton',sans-serif;
+  --body:'Space Grotesk',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  overflow-x:hidden;
+  cursor:none;
+}
+::selection{background:var(--gold);color:#0d0e0a}
+a{color:inherit;text-decoration:none;cursor:none}
+button{cursor:none;font-family:inherit}
+img{max-width:100%}
+
+/* ================= CUSTOM CURSOR ================= */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%)}
+.cursor-dot{width:6px;height:6px;background:var(--green)}
+.cursor-ring{width:36px;height:36px;border:1px solid rgba(199,165,103,.6);transition:width .25s,height .25s,border-color .25s,background .25s}
+.cursor-ring.hovered{width:64px;height:64px;border-color:var(--green);background:rgba(111,203,159,.06)}
+.cursor-ring .cursor-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--green);opacity:0;transition:opacity .25s}
+.cursor-ring.hovered .cursor-label{opacity:1}
+@media (hover:none){.cursor-dot,.cursor-ring{display:none}body,a,button{cursor:auto}}
+
+/* ================= LOADER ================= */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .7s,visibility .7s}
+#loader.done{opacity:0;visibility:hidden}
+.loader-scope svg{width:120px;height:120px}
+.loader-ring{fill:none;stroke:var(--line);stroke-width:1}
+.loader-ring.spin{stroke:var(--gold);stroke-dasharray:120 210;transform-origin:60px 60px;animation:spin 1.4s linear infinite}
+.loader-ring.spin2{stroke:var(--green);stroke-dasharray:60 166;transform-origin:60px 60px;animation:spin 2.2s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-dot{fill:var(--green);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+.loader-pct{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--ink-dim)}
+.loader-pct b{color:var(--gold);font-weight:500}
+
+/* ================= NAV ================= */
+.site-nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:22px 44px;mix-blend-mode:normal;transition:background .4s,padding .4s,border-color .4s;border-bottom:1px solid transparent}
+.site-nav.scrolled{background:rgba(13,14,10,.72);backdrop-filter:blur(14px);padding:14px 44px;border-color:var(--line)}
+.logo{font-family:var(--mono);font-size:15px;letter-spacing:3px;color:var(--gold);text-transform:uppercase}
+.logo::before{content:"</> ";color:var(--green)}
+.site-nav nav{display:flex;gap:34px}
+.site-nav nav a{font-family:var(--mono);font-size:11px;letter-spacing:2.5px;color:var(--ink-dim);position:relative;padding:4px 0;transition:color .3s}
+.site-nav nav a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--green);transition:width .35s cubic-bezier(.7,0,.3,1)}
+.site-nav nav a:hover{color:var(--ink)}
+.site-nav nav a:hover::after{width:100%}
+.nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:0}
+.nav-toggle span{width:24px;height:1.5px;background:var(--ink);transition:.3s}
+
+/* ================= HERO ================= */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#webgl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,transparent 30%,rgba(13,14,10,.75) 100%);pointer-events:none}
+.hero-stage{position:relative;z-index:5;text-align:center;perspective:900px}
+.hero-word{font-family:var(--disp);font-size:clamp(64px,15vw,220px);line-height:.95;letter-spacing:.02em;color:var(--ink);display:flex;justify-content:center;transform-style:preserve-3d}
+.hero-word span{display:inline-block;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.8,.2,1),color .4s;text-shadow:0 0 60px rgba(199,165,103,.15)}
+.hero-word span:hover{color:var(--gold);transform:translateZ(70px) rotateX(12deg)}
+.hero-role{font-family:var(--mono);font-size:clamp(12px,1.6vw,17px);letter-spacing:clamp(8px,2.4vw,26px);color:var(--green);margin-top:18px}
+.hero-tags{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:26px;font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--ink-dim)}
+.hero-tags i{width:5px;height:5px;background:var(--gold);transform:rotate(45deg)}
+.hero-corner{position:absolute;z-index:6;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-dim)}
+.hc-tl{top:96px;left:44px}.hc-tr{top:96px;right:44px;text-align:right}
+.hc-bl{bottom:36px;left:44px}.hc-br{bottom:36px;right:44px;text-align:right}
+.hc-tr b{color:var(--green);font-weight:400}
+.hero-corner .blink{animation:blink 1.6s steps(2) infinite;color:var(--green)}
+@keyframes blink{50%{opacity:0}}
+.hero-scroll{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--ink-dim)}
+.hero-scroll .stem{width:1px;height:52px;background:linear-gradient(var(--green),transparent);position:relative;overflow:hidden}
+.hero-scroll .stem::after{content:"";position:absolute;top:-20px;left:0;width:1px;height:20px;background:var(--ink);animation:drop 1.8s ease-in-out infinite}
+@keyframes drop{to{top:60px}}
+
+/* ================= MARQUEE ================= */
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:16px 0;background:var(--bg2)}
+.ticker-track{display:flex;gap:48px;width:max-content;animation:mq 26s linear infinite;font-family:var(--mono);font-size:12px;letter-spacing:4px;color:var(--ink-dim);white-space:nowrap}
+.ticker-track b{color:var(--gold);font-weight:400}
+.ticker-track .g{color:var(--green)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ================= SECTIONS ================= */
+.section-pad{padding:130px 44px}
+.wrap{max-width:1240px;margin:0 auto}
+.section-head{margin-bottom:70px}
+.eyebrow{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:10px;letter-spacing:4px;color:var(--green);margin-bottom:18px}
+.blip{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 12px var(--green);animation:pulse 1.6s infinite}
+.section-title{font-family:var(--disp);font-size:clamp(44px,7vw,96px);line-height:1;color:var(--ink);letter-spacing:.01em}
+.section-title .o{color:transparent;-webkit-text-stroke:1.5px var(--gold)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(50px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv-d1{transition-delay:.1s}.rv-d2{transition-delay:.2s}.rv-d3{transition-delay:.3s}.rv-d4{transition-delay:.4s}
+
+/* ================= ABOUT ================= */
+#about{background:linear-gradient(180deg,var(--bg) 0%,#0f110c 100%);border-top:1px solid var(--line)}
+.about-grid{display:grid;grid-template-columns:380px 1fr;gap:70px;align-items:start}
+.tilt{transform-style:preserve-3d;transition:transform .3s ease-out;will-change:transform}
+.about-portrait{position:relative;background:var(--panel);border:1px solid var(--line);padding:18px;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.about-portrait svg{width:100%;display:block}
+.scan-line{animation:scan 3.4s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(0)}50%{transform:translateY(260px)}}
+.about-portrait .name-tag{position:absolute;bottom:34px;left:34px;font-family:var(--disp);font-size:26px;letter-spacing:3px;color:var(--gold);background:rgba(13,14,10,.85);padding:6px 14px;border:1px solid var(--line);transform:translateZ(40px)}
+.about-portrait .rail{position:absolute;top:34px;right:34px;display:flex;flex-direction:column;gap:12px;font-family:var(--mono);color:var(--green);font-size:14px;transform:translateZ(30px)}
+.about-copy .kicker{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--green)}
+.about-copy h3{font-size:clamp(26px,3.2vw,40px);font-weight:600;line-height:1.25;margin:18px 0 26px}
+.hl{color:var(--gold);position:relative}
+.hl.g{color:var(--green)}
+.about-paras p{color:var(--ink-dim);line-height:1.8;margin-bottom:16px;max-width:640px}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:34px}
+.stat{background:var(--panel);padding:20px;transition:background .3s}
+.stat:hover{background:#1b1e15}
+.stat .k{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--ink-dim);margin-bottom:8px}
+.stat .v{font-size:14px;font-weight:500;color:var(--ink)}
+
+/* ================= EXPERTISE ================= */
+#expertise{background:#0f110c;border-top:1px solid var(--line)}
+.expertise-grid{display:grid;grid-template-columns:1fr 1.35fr;gap:70px}
+.expertise-copy p{color:var(--ink-dim);line-height:1.8;margin-bottom:18px}
+.expertise-copy p strong{color:var(--ink);font-weight:600}
+.stack-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.stack-pills span{font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:8px 14px;border:1px solid var(--line);color:var(--ink-dim);transition:.3s}
+.stack-pills span:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 20px rgba(111,203,159,.15)}
+.expertise-list{display:flex;flex-direction:column}
+.expertise-item{display:grid;grid-template-columns:64px 1fr 40px;gap:24px;padding:30px 22px;border-top:1px solid var(--line);position:relative;overflow:hidden;transition:background .35s}
+.expertise-item:last-child{border-bottom:1px solid var(--line)}
+.expertise-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--gold),var(--green));transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.7,0,.3,1)}
+.expertise-item:hover{background:rgba(199,165,103,.04)}
+.expertise-item:hover::before{transform:scaleY(1)}
+.expertise-item .num{font-family:var(--mono);color:var(--gold);font-size:13px;padding-top:4px}
+.expertise-item h4{font-size:20px;font-weight:600;margin-bottom:8px}
+.expertise-item p{color:var(--ink-dim);line-height:1.7;font-size:14px}
+.expertise-item .tags{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.expertise-item .tags span{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--green);border:1px solid rgba(111,203,159,.3);padding:4px 10px}
+.expertise-item .go{font-size:22px;color:var(--gold);opacity:0;transform:translate(-8px,8px);transition:.35s}
+.expertise-item:hover .go{opacity:1;transform:none}
+
+/* ================= WORK ================= */
+#work{background:var(--bg);border-top:1px solid var(--line)}
+.work-hero{padding:120px 44px 60px;text-align:center;position:relative;overflow:hidden}
+.work-hero .lead{font-family:var(--mono);font-size:11px;letter-spacing:5px;color:var(--ink-dim);margin-bottom:14px}
+.work-hero .big{font-family:var(--disp);font-size:clamp(70px,14vw,200px);line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--gold);position:relative}
+.work-hero .big em{font-style:normal;color:var(--gold);text-shadow:0 0 80px rgba(199,165,103,.35)}
+.projects{display:flex;flex-direction:column;gap:36px;perspective:1400px}
+.project-card{display:grid;grid-template-columns:1fr 340px;gap:40px;background:var(--panel);border:1px solid var(--line);padding:44px;position:relative;overflow:hidden;transform-style:preserve-3d;transition:border-color .4s}
+.project-card:hover{border-color:rgba(199,165,103,.45)}
+.project-card .glow{position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(199,165,103,.10),transparent 65%);pointer-events:none;opacity:0;transition:opacity .4s;transform:translate(-50%,-50%)}
+.project-card:hover .glow{opacity:1}
+.project-index{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--green);margin-bottom:16px}
+.project-card h3{font-family:var(--disp);font-size:clamp(30px,4vw,52px);letter-spacing:.01em;margin-bottom:16px;transition:color .3s}
+.project-card:hover h3{color:var(--gold)}
+.project-card>p,.project-card .desc{color:var(--ink-dim);line-height:1.8;max-width:560px}
+.project-tags{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+.project-tags span{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--gold);border:1px solid rgba(199,165,103,.35);padding:5px 12px}
+.project-visual{border:1px solid var(--line);background:#0b0c09;position:relative;overflow:hidden;transform:translateZ(50px)}
+.project-visual svg{width:100%;display:block}
+.project-visual .sweep{position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(111,203,159,.08) 50%,transparent 60%);transform:translateX(-100%);transition:transform .9s ease}
+.project-card:hover .sweep{transform:translateX(100%)}
+.project-link{display:inline-flex;align-items:center;gap:12px;margin-top:18px;font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--ink)}
+.project-link .ring{width:38px;height:38px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gold);transition:.35s}
+.project-link:hover .ring{background:var(--gold);color:#0d0e0a;transform:rotate(45deg)}
+
+/* ================= CONTACT ================= */
+#contact{background:linear-gradient(180deg,var(--bg),#0f110c);border-top:1px solid var(--line)}
+.contact-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:80px}
+.contact-heading{font-family:var(--disp);font-size:clamp(44px,6vw,84px);line-height:1.02}
+.contact-heading .script{font-family:'Caveat',cursive;font-weight:600;color:var(--green);font-size:1.15em}
+.contact-copy>p{color:var(--ink-dim);margin:24px 0 36px;line-height:1.8;max-width:440px}
+.contact-cards{display:flex;flex-direction:column;gap:14px}
+.c-card{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border:1px solid var(--line);background:var(--panel);transition:.35s;position:relative;overflow:hidden}
+.c-card::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(199,165,103,.07) 50%,transparent 60%);transform:translateX(-110%);transition:transform .8s}
+.c-card:hover::after{transform:translateX(110%)}
+.c-card:hover{border-color:var(--gold);transform:translateX(6px)}
+.c-card .left{display:flex;align-items:center;gap:16px}
+.c-card .icon{width:42px;height:42px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:16px}
+.c-card .label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--ink-dim)}
+.c-card .value{font-size:15px;margin-top:3px}
+.c-card .arrow{color:var(--gold)}
+.contact-form{background:var(--panel);border:1px solid var(--line);padding:38px;position:relative}
+.contact-form::before{content:"";position:absolute;top:-1px;left:-1px;right:-1px;height:2px;background:linear-gradient(90deg,var(--gold),var(--green),transparent)}
+.field{margin-bottom:22px}
+.field label{display:block;font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--green);margin-bottom:10px}
+.field input,.field textarea{width:100%;background:#0b0c09;border:1px solid var(--line);color:var(--ink);padding:14px 16px;font-family:var(--body);font-size:14px;transition:border-color .3s,box-shadow .3s;resize:vertical}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(199,165,103,.12)}
+.submit-btn{width:100%;padding:17px;background:var(--gold);color:#0d0e0a;border:0;font-family:var(--mono);font-size:11px;letter-spacing:3px;font-weight:500;position:relative;overflow:hidden;transition:.3s}
+.submit-btn:hover{background:var(--green)}
+.form-note{margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--green);min-height:14px;text-align:center}
+
+footer{display:flex;justify-content:space-between;padding:28px 44px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--ink-dim)}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width:1000px){
+  .about-grid,.expertise-grid,.contact-grid{grid-template-columns:1fr;gap:50px}
+  .project-card{grid-template-columns:1fr}
+  .project-visual{max-width:420px}
+  .about-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:720px){
+  .section-pad{padding:90px 22px}
+  .site-nav{padding:18px 22px}
+  .site-nav nav{position:fixed;inset:0;background:rgba(13,14,10,.97);flex-direction:column;align-items:center;justify-content:center;gap:34px;transform:translateY(-100%);transition:transform .5s cubic-bezier(.7,0,.3,1)}
+  .site-nav nav.open{transform:none}
+  .site-nav nav a{font-size:16px}
+  .nav-toggle{display:flex;z-index:1000}
+  .nav-toggle.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+  .nav-toggle.open span:nth-child(2){opacity:0}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+  .hero-corner{display:none}
+  .project-card{padding:28px}
+  footer{flex-direction:column;gap:10px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot"></div>
+<div class="cursor-ring"><span class="cursor-label">VIEW</span></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-scope">
+    <svg viewBox="0 0 120 120">
+      <circle class="loader-ring" cx="60" cy="60" r="52"/>
+      <circle class="loader-ring spin" cx="60" cy="60" r="52"/>
+      <circle class="loader-ring spin2" cx="60" cy="60" r="36"/>
+      <circle class="loader-dot" cx="60" cy="24" r="2.5"/>
+      <circle class="loader-dot" cx="90" cy="80" r="2" style="animation-delay:.4s"/>
+      <circle class="loader-dot" cx="38" cy="86" r="1.6" style="animation-delay:.9s"/>
+    </svg>
+  </div>
+  <div class="loader-pct"><b id="pctNum">0</b>% — establishing connection</div>
+</div>
+
+<!-- NAV -->
+<header class="site-nav" id="siteNav">
+  <a href="#top" class="logo">mohamed</a>
+  <nav id="mainNav">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#expertise">Expertise</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="menu"><span></span><span></span><span></span></button>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <canvas id="webgl"></canvas>
+
+  <div class="hero-corner hc-tl">SYS.PORTFOLIO_v3.0<br><span class="blink">● ONLINE</span></div>
+  <div class="hero-corner hc-tr">LAT 36.75 / LON 3.06<br><b>ALGIERS — DZ</b></div>
+  <div class="hero-corner hc-bl">© 2026 mohamed</div>
+  <div class="hero-corner hc-br">PYTHON · C++ · GODOT<br>THREE.JS · LINUX</div>
+
+  <div class="hero-stage">
+    <div class="hero-word" id="heroWord" aria-label="SECURITY">
+      <span>S</span><span>E</span><span>C</span><span>U</span><span>R</span><span>I</span><span>T</span><span>Y</span>
+    </div>
+    <div class="hero-role" id="heroRole">DEVELOPER</div>
+    <div class="hero-tags" id="heroTags"><span>NETWORKS</span><i></i><span>GAMES</span><i></i><span>AI TOOLS</span></div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>SCROLL TO EXPLORE</span>
+    <span class="stem"></span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="ticker-track">
+    <span><b>PYTHON</b></span><span>GODOT</span><span class="g">THREE.JS</span><span>LINUX</span><span><b>C++</b></span><span>C#</span><span class="g">GDSCRIPT</span>
+    <span><b>PYTHON</b></span><span>GODOT</span><span class="g">THREE.JS</span><span>LINUX</span><span><b>C++</b></span><span>C#</span><span class="g">GDSCRIPT</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="section-pad" id="about">
+  <div class="wrap">
+    <div class="section-head rv">
+      <div class="eyebrow"><span class="blip"></span> THE PERSON BEHIND THE CODE</div>
+      <h2 class="section-title">About <span class="o">Me</span></h2>
+    </div>
+
+    <div class="about-grid">
+      <div class="tilt rv" data-tilt="14">
+        <div class="about-portrait">
+          <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMax slice">
+            <rect width="300" height="400" fill="#12140e"/>
+            <g stroke="#23261b" stroke-width="1">
+              <line x1="0" y1="80" x2="300" y2="80"/><line x1="0" y1="160" x2="300" y2="160"/>
+              <line x1="0" y1="240" x2="300" y2="240"/><line x1="0" y1="320" x2="300" y2="320"/>
+              <line x1="75" y1="0" x2="75" y2="400"/><line x1="150" y1="0" x2="150" y2="400"/><line x1="225" y1="0" x2="225" y2="400"/>
+            </g>
+            <circle cx="150" cy="170" r="62" fill="none" stroke="#C7A567" stroke-width="1.4"/>
+            <path d="M92 320 Q150 220 208 320 Z" fill="none" stroke="#C7A567" stroke-width="1.4"/>
+            <circle cx="150" cy="170" r="80" fill="none" stroke="#6FCB9F" stroke-width=".6" stroke-dasharray="4 6" opacity=".6"/>
+            <line class="scan-line" x1="0" y1="60" x2="300" y2="60" stroke="#6FCB9F" stroke-width="1.4" opacity=".7"/>
+          </svg>
+          <div class="rail"><span>&lt;/&gt;</span><span>◆</span><span>▣</span></div>
+          <div class="name-tag">MOHAMED</div>
+        </div>
+      </div>
+
+      <div class="about-copy">
+        <span class="kicker rv">— WHO AM I?</span>
+        <h3 class="rv rv-d1">I build <span class="hl">secure systems</span> and <span class="hl g">playable worlds</span>, where careful logic meets a bit of imagination.</h3>
+        <div class="about-paras">
+          <p class="rv rv-d2">I'm Mohamed — a self-taught developer from Algeria who turns curiosity into working software: network scanners, security tools, and full games built from scratch, no formal classroom required.</p>
+          <p class="rv rv-d3">I care about the parts most tutorials skip — how a scan renders in real time, how a save file survives a crash, how a heuristic actually catches something it shouldn't let through.</p>
+        </div>
+        <div class="about-stats rv rv-d4">
+          <div class="stat"><div class="k">BASED IN</div><div class="v">Algeria</div></div>
+          <div class="stat"><div class="k">FOCUS</div><div class="v">Security / Games</div></div>
+          <div class="stat"><div class="k">LANGUAGES</div><div class="v">Python, C++, C#, GDScript</div></div>
+          <div class="stat"><div class="k">MINDSET</div><div class="v">Self-taught, always building</div></div>
+          <div class="stat"><div class="k">SHIPPED</div><div class="v">6+ working projects</div></div>
+          <div class="stat"><div class="k">GOAL</div><div class="v">Founding an AI security company</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTISE -->
+<section class="section-pad" id="expertise">
+  <div class="wrap">
+    <div class="section-head rv">
+      <div class="eyebrow"><span class="blip"></span> WHERE I SPEND MY HOURS</div>
+      <h2 class="section-title">My <span class="o">Expertise</span></h2>
+    </div>
+
+    <div class="expertise-grid">
+      <div class="expertise-copy rv">
+        <p><strong>I design and build tools that watch networks, catch threats, and games that don't crash mid-boss-fight.</strong></p>
+        <p>From CLI scanners to full GUI radar apps, I combine backend logic with interfaces people can actually read at a glance — then I go build a game with the same care.</p>
+        <div class="stack-pills">
+          <span>PYTHON</span><span>C++</span><span>C#</span><span>GDSCRIPT</span><span>THREE.JS</span><span>LINUX</span>
+        </div>
+      </div>
+
+      <div class="expertise-list">
+        <div class="expertise-item rv"><div class="num">01</div><div><h4>Security Tooling</h4><p>Network and Bluetooth scanners, antivirus heuristics, and real-time GUI radar tools with risk scoring and live sweep visuals.</p><div class="tags"><span>PYTHON</span><span>TKINTER</span><span>BLEAK</span></div></div><div class="go">↗</div></div>
+        <div class="expertise-item rv rv-d1"><div class="num">02</div><div><h4>Game Development</h4><p>Full games from scratch — enemy AI, puzzle systems, save/restore logic and visual effects — in Godot and Three.js.</p><div class="tags"><span>GODOT</span><span>GDSCRIPT</span><span>THREE.JS</span></div></div><div class="go">↗</div></div>
+        <div class="expertise-item rv rv-d2"><div class="num">03</div><div><h4>Systems &amp; Linux</h4><p>Comfortable administering Linux systems and VPS environments, working close to the OS instead of around it.</p><div class="tags"><span>LINUX</span><span>VPS</span><span>BASH</span></div></div><div class="go">↗</div></div>
+        <div class="expertise-item rv rv-d3"><div class="num">04</div><div><h4>AI-Assisted Tools</h4><p>Combining the VirusTotal and Claude APIs into agent-style tools with voice interaction and live dashboards.</p><div class="tags"><span>CLAUDE API</span><span>VIRUSTOTAL</span><span>APIS</span></div></div><div class="go">↗</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="work-hero">
+    <div class="lead rv">SCROLL TO EXPLORE MY</div>
+    <div class="big rv rv-d1">SEL<em>E</em>CTED</div>
+  </div>
+
+  <div class="section-pad" style="padding-top:40px">
+    <div class="wrap">
+      <div class="projects">
+
+        <article class="project-card tilt rv" data-tilt="4" data-glow>
+          <div class="glow"></div>
+          <div>
+            <div class="project-index">NETWORK SECURITY TOOL · 01</div>
+            <h3>NetRadar Pro</h3>
+            <p class="desc">A live GUI radar for scanning networks and Bluetooth devices in real time, with animated sweep, color-coded risk scoring, and JSON/CSV export. Grew from a cross-platform CLI scanner into a full desktop app.</p>
+            <div class="project-tags"><span>PYTHON</span><span>TKINTER</span><span>BLEAK</span></div>
+          </div>
+          <div>
+            <div class="project-visual">
+              <svg viewBox="0 0 280 210">
+                <rect width="280" height="210" fill="#0b0c09"/>
+                <circle cx="140" cy="105" r="70" fill="none" stroke="#2f5544" stroke-width="1"/>
+                <circle cx="140" cy="105" r="45" fill="none" stroke="#2f5544" stroke-width="1"/>
+                <circle cx="140" cy="105" r="20" fill="none" stroke="#2f5544" stroke-width="1"/>
+                <path d="M140 105 L140 35 A70 70 0 0 1 189 55 Z" fill="#6FCB9F" opacity="0.35"/>
+                <circle cx="175" cy="70" r="3" fill="#6FCB9F"/><circle cx="100" cy="140" r="3" fill="#C7A567"/><circle cx="160" cy="150" r="3" fill="#6FCB9F"/>
+              </svg>
+              <div class="sweep"></div>
+            </div>
+            <a class="project-link" href="https://github.com/karle852" target="_blank" rel="noopener"><div class="ring">↗</div> VIEW ON GITHUB</a>
+          </div>
+        </article>
+
+        <article class="project-card tilt rv rv-d1" data-tilt="4" data-glow>
+          <div class="glow"></div>
+          <div>
+            <div class="project-index">SECURITY SUITE · 02</div>
+            <h3>Security Shield</h3>
+            <p class="desc">A multi-layered antivirus system combining local hash signatures, VirusTotal cloud lookups, and heuristic analysis — behind a dark, NetRadar-style desktop GUI.</p>
+            <div class="project-tags"><span>PYTHON</span><span>VIRUSTOTAL API</span><span>TKINTER</span></div>
+          </div>
+          <div>
+            <div class="project-visual">
+              <svg viewBox="0 0 280 210">
+                <rect width="280" height="210" fill="#0b0c09"/>
+                <path d="M140 40 L200 62 L200 116 Q200 158 140 178 Q80 158 80 116 L80 62 Z" fill="none" stroke="#C7A567" stroke-width="1.4"/>
+                <path d="M118 108 L134 124 L166 88" fill="none" stroke="#6FCB9F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div class="sweep"></div>
+            </div>
+            <a class="project-link" href="https://github.com/karle852" target="_blank" rel="noopener"><div class="ring">↗</div> VIEW ON GITHUB</a>
+          </div>
+        </article>
+
+        <article class="project-card tilt rv rv-d1" data-tilt="4" data-glow>
+          <div class="glow"></div>
+          <div>
+            <div class="project-index">HORROR GAME · 03</div>
+            <h3>Corrupted Pages Sanctuary</h3>
+            <p class="desc">A complete four-chapter horror game built in Godot 4.3 — enemy AI, puzzle systems, a quarantine/restoration mechanic, and full visual effects, written entirely in GDScript.</p>
+            <div class="project-tags"><span>GODOT 4.3</span><span>GDSCRIPT</span></div>
+          </div>
+          <div>
+            <div class="project-visual">
+              <svg viewBox="0 0 280 210">
+                <rect width="280" height="210" fill="#0b0c09"/>
+                <rect x="95" y="45" width="90" height="118" rx="3" fill="none" stroke="#C7A567" stroke-width="1.4"/>
+                <line x1="112" y1="75" x2="168" y2="75" stroke="#C7A567" stroke-width="1"/>
+                <line x1="112" y1="95" x2="168" y2="95" stroke="#C7A567" stroke-width="1"/>
+                <line x1="112" y1="115" x2="150" y2="115" stroke="#C7A567" stroke-width="1"/>
+                <circle cx="140" cy="140" r="10" fill="none" stroke="#6FCB9F" stroke-width="1.4"/>
+              </svg>
+              <div class="sweep"></div>
+            </div>
+            <a class="project-link" href="https://github.com/karle852" target="_blank" rel="noopener"><div class="ring">↗</div> VIEW ON GITHUB</a>
+          </div>
+        </article>
+
+        <article class="project-card tilt rv rv-d1" data-tilt="4" data-glow>
+          <div class="glow"></div>
+          <div>
+            <div class="project-index">3D WEB GAME · 04</div>
+            <h3>Flappy Bird 3D</h3>
+            <p class="desc">A browser-based 3D Flappy Bird across four themed worlds — desert, forest, beach, and fantasy — with difficulty selection, unlockable skins, and a full Arabic-language UI.</p>
+            <div class="project-tags"><span>THREE.JS</span><span>JAVASCRIPT</span></div>
+          </div>
+          <div>
+            <div class="project-visual">
+              <svg viewBox="0 0 280 210">
+                <rect width="280" height="210" fill="#0b0c09"/>
+                <polygon points="140,55 195,90 195,150 140,175 85,150 85,90" fill="none" stroke="#6FCB9F" stroke-width="1.4"/>
+                <polygon points="140,80 175,100 175,135 140,152 105,135 105,100" fill="none" stroke="#C7A567" stroke-width="1"/>
+              </svg>
+              <div class="sweep"></div>
+            </div>
+            <a class="project-link" href="https://github.com/karle852" target="_blank" rel="noopener"><div class="ring">↗</div> VIEW DEMO</a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section-pad" id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="contact-copy">
+        <h2 class="contact-heading rv">Let's build<br>something <span class="script">secure</span>.</h2>
+        <p class="rv rv-d1">Have a project, an idea, or just want to talk security and games? I'd love to hear from you.</p>
+        <div class="contact-cards">
+          <a class="c-card rv rv-d1" href="mailto:karlecten032@gmail.com"><div class="left"><div class="icon">✉</div><div><div class="label">EMAIL ME</div><div class="value">karlecten032@gmail.com</div></div></div><div class="arrow">↗</div></a>
+          <a class="c-card rv rv-d2" href="https://github.com/karle852" target="_blank" rel="noopener"><div class="left"><div class="icon">◈</div><div><div class="label">CONNECT</div><div class="value">GitHub</div></div></div><div class="arrow">↗</div></a>
+          <div class="c-card rv rv-d3"><div class="left"><div class="icon">◎</div><div><div class="label">BASED IN</div><div class="value">Algeria</div></div></div><div class="arrow">↗</div></div>
+        </div>
+      </div>
+
+      <form class="contact-form rv rv-d2" id="contactForm">
+        <div class="field"><label for="f-name">NAME</label><input id="f-name" type="text" placeholder="Your name" required></div>
+        <div class="field"><label for="f-email">EMAIL</label><input id="f-email" type="email" placeholder="your@email.com" required></div>
+        <div class="field"><label for="f-msg">MESSAGE</label><textarea id="f-msg" rows="5" placeholder="Tell me about your project..." required></textarea></div>
+        <button class="submit-btn" type="submit">Send Message ↗</button>
+        <div class="form-note" id="formNote"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Mohamed — built from scratch</span>
+  <span>HTML · CSS · JS · WEBGL</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============================================================
+   1) LOADER
+============================================================ */
+(function(){
+  var pct=document.getElementById('pctNum'), loader=document.getElementById('loader'), p=0;
+  var t=setInterval(function(){
+    p+=Math.random()*14;
+    if(p>=100){p=100;clearInterval(t);setTimeout(function(){loader.classList.add('done');heroIntro();},350);}
+    pct.textContent=Math.floor(p);
+  },90);
+})();
+
+/* ============================================================
+   2) CUSTOM CURSOR
+============================================================ */
+(function(){
+  var dot=document.querySelector('.cursor-dot'), ring=document.querySelector('.cursor-ring');
+  var mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+  addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  (function loop(){rx+=(mx-rx)*.16;ry+=(my-ry)*.16;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+  document.querySelectorAll('a,button,.expertise-item,.project-card,input,textarea').forEach(function(el){
+    el.addEventListener('mouseenter',function(){ring.classList.add('hovered');});
+    el.addEventListener('mouseleave',function(){ring.classList.remove('hovered');});
+  });
+})();
+
+/* ============================================================
+   3) THREE.JS — HERO 3D SCENE
+   Radar network particles + wireframe core + orbit rings
+============================================================ */
+var heroWord=document.getElementById('heroWord');
+function heroIntro(){
+  var letters=heroWord.querySelectorAll('span');
+  letters.forEach(function(l,i){
+    setTimeout(function(){l.style.transition='none';l.style.transform='translateY(60px) rotateX(90deg)';l.style.opacity='0';
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        l.style.transition='transform .8s cubic-bezier(.2,.9,.3,1.2),opacity .6s,color .4s';
+        l.style.transform='none';l.style.opacity='1';
+      });});
+    },i*70);
+  });
+  var role=document.getElementById('heroRole'),tags=document.getElementById('heroTags');
+  role.style.transition=tags.style.transition='opacity 1s .8s,transform 1s .8s';
+  role.style.opacity=tags.style.opacity='1';role.style.transform=tags.style.transform='none';
+}
+document.getElementById('heroRole').style.opacity='0';
+document.getElementById('heroRole').style.transform='translateY(20px)';
+document.getElementById('heroTags').style.opacity='0';
+document.getElementById('heroTags').style.transform='translateY(20px)';
+
+(function(){
+  var canvas=document.getElementById('webgl');
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  var scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x0d0e0a,0.035);
+  var camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,100);
+  camera.position.set(0,0.4,9);
+
+  var GOLD=0xC7A567, GREEN=0x6FCB9F;
+
+  /* --- particle network sphere --- */
+  var COUNT=900, pos=new Float32Array(COUNT*3), col=new Float32Array(COUNT*3);
+  var cGold=new THREE.Color(GOLD), cGreen=new THREE.Color(GREEN);
+  for(var i=0;i<COUNT;i++){
+    var r=4.2+Math.random()*4.5, th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1);
+    pos[i*3]=r*Math.sin(ph)*Math.cos(th);
+    pos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*0.65;
+    pos[i*3+2]=r*Math.cos(ph);
+    var c=Math.random()<0.72?cGold:cGreen;
+    col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+  }
+  var pGeo=new THREE.BufferGeometry();
+  pGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  pGeo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  var particles=new THREE.Points(pGeo,new THREE.PointsMaterial({size:0.045,vertexColors:true,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(particles);
+
+  /* --- wireframe core: torus knot (the "secured core") --- */
+  var core=new THREE.Mesh(
+    new THREE.TorusKnotGeometry(1.5,0.42,160,20),
+    new THREE.MeshBasicMaterial({color:GOLD,wireframe:true,transparent:true,opacity:0.32})
+  );
+  core.position.y=0.3;
+  scene.add(core);
+
+  var inner=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.85,1),
+    new THREE.MeshBasicMaterial({color:GREEN,wireframe:true,transparent:true,opacity:0.5})
+  );
+  inner.position.y=0.3;
+  scene.add(inner);
+
+  /* --- orbit rings --- */
+  function ring(radius,tiltX,tiltZ,color,op){
+    var m=new THREE.Mesh(new THREE.TorusGeometry(radius,0.006,8,140),
+      new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:op}));
+    m.rotation.x=tiltX;m.rotation.z=tiltZ;m.position.y=0.3;
+    scene.add(m);return m;
+  }
+  var r1=ring(3.1,Math.PI/2.15,0.3,GOLD,0.35);
+  var r2=ring(3.8,Math.PI/1.7,-0.5,GREEN,0.22);
+  var r3=ring(4.6,Math.PI/2.6,0.9,GOLD,0.14);
+
+  /* --- orbiting satellites --- */
+  var sats=[];
+  for(var s=0;s<3;s++){
+    var sat=new THREE.Mesh(new THREE.OctahedronGeometry(0.09),
+      new THREE.MeshBasicMaterial({color:s%2?GREEN:GOLD}));
+    scene.add(sat);sats.push({m:sat,off:s*2.1,rad:3.1+s*0.7,sp:0.35+s*0.12});
+  }
+
+  /* --- mouse parallax --- */
+  var mouseX=0,mouseY=0;
+  addEventListener('mousemove',function(e){
+    mouseX=(e.clientX/innerWidth-0.5)*2;
+    mouseY=(e.clientY/innerHeight-0.5)*2;
+  });
+
+  var clock=new THREE.Clock();
+  function tick(){
+    var t=clock.getElapsedTime();
+    core.rotation.y=t*0.18; core.rotation.x=Math.sin(t*0.25)*0.25;
+    inner.rotation.y=-t*0.4; inner.rotation.z=t*0.2;
+    particles.rotation.y=t*0.03;
+    r1.rotation.z+=0.0016; r2.rotation.z-=0.0011; r3.rotation.x+=0.0008;
+    sats.forEach(function(s){
+      var a=t*s.sp+s.off;
+      s.m.position.set(Math.cos(a)*s.rad,0.3+Math.sin(a*1.3)*0.5,Math.sin(a)*s.rad);
+      s.m.rotation.y=t*2;
+    });
+    camera.position.x+=(mouseX*1.1-camera.position.x)*0.04;
+    camera.position.y+=(0.4-mouseY*0.8-camera.position.y)*0.04;
+    camera.lookAt(0,0.3,0);
+    renderer.render(scene,camera);
+    requestAnimationFrame(tick);
+  }
+  function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}
+  addEventListener('resize',resize);resize();tick();
+})();
+
+/* ============================================================
+   4) NAV — scrolled state + mobile menu
+============================================================ */
+(function(){
+  var nav=document.getElementById('siteNav'),toggle=document.getElementById('navToggle'),menu=document.getElementById('mainNav');
+  addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>60);});
+  toggle.addEventListener('click',function(){menu.classList.toggle('open');toggle.classList.toggle('open');});
+  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');toggle.classList.remove('open');});});
+})();
+
+/* ============================================================
+   5) SCROLL REVEAL
+============================================================ */
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:0.12});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
+
+/* ============================================================
+   6) 3D TILT + GLOW
+============================================================ */
+(function(){
+  document.querySelectorAll('.tilt').forEach(function(card){
+    var str=parseFloat(card.getAttribute('data-tilt'))||10;
+    card.addEventListener('mousemove',function(e){
+      var r=card.getBoundingClientRect();
+      var x=(e.clientX-r.left)/r.width-0.5, y=(e.clientY-r.top)/r.height-0.5;
+      card.style.transform='rotateY('+(x*str)+'deg) rotateX('+(-y*str)+'deg) translateZ(0)';
+      var glow=card.querySelector('.glow');
+      if(glow){glow.style.left=(e.clientX-r.left)+'px';glow.style.top=(e.clientY-r.top)+'px';}
+    });
+    card.addEventListener('mouseleave',function(){
+      card.style.transition='transform .7s cubic-bezier(.2,.8,.2,1)';
+      card.style.transform='rotateY(0) rotateX(0)';
+      setTimeout(function(){card.style.transition='transform .3s ease-out';},700);
+    });
+  });
+})();
+
+/* ============================================================
+   7) CONTACT FORM — mailto fallback
+============================================================ */
+(function(){
+  var form=document.getElementById('contactForm'),note=document.getElementById('formNote');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=document.getElementById('f-name').value.trim();
+    var email=document.getElementById('f-email').value.trim();
+    var msg=document.getElementById('f-msg').value.trim();
+    var subject=encodeURIComponent('Portfolio contact from '+name);
+    var body=encodeURIComponent(msg+'\n\n— '+name+' ('+email+')');
+    window.location.href='mailto:karlecten032@gmail.com?subject='+subject+'&body='+body;
+    note.textContent='Opening your email app…';
+  });
+})();
+</script>
+</body>
+</html>
