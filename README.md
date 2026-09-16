@@ -26,10 +26,10 @@ Fonts: Space Grotesk, IBM Plex Sans, IBM Plex Mono
 Running locally
 No dependencies, no build tools. Just open the file directly:
 ```bash
-open portfolio.html
+open index.html
 ```
 Or serve it locally if you prefer:
 ```bash
 python -m http.server 8000
 ```
-Then visit `http://localhost:8000/portfolio.html`.
+Then visit `https://karle852.github.io/Mohamed-Work-Log/`.
