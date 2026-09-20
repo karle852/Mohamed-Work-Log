@@ -26,7 +26,7 @@ Fonts: Space Grotesk, IBM Plex Sans, IBM Plex Mono
 Running locally
 No dependencies, no build tools. Just open the file directly:
 ```bash
-open index.html
+https://karle852.github.io/Mohamed-Work-Log/
 ```
 Or serve it locally if you prefer:
 ```bash
